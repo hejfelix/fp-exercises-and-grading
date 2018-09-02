@@ -71,10 +71,7 @@ class GradingService[F[_]](implicit F: Effect[F], ec: ExecutionContext)
       val withEvaluationAsync: EitherT[F, Exception, File] =
         unzipOp.semiflatMap(unzippedDirectory => {
           async
-            .start(evaulator.evaluate(unzippedDirectory))
-            .map(_.map { x =>
-              println(x); x
-            }.attempt.flatMap(handleResult))
+            .start(evaulator.evaluate(unzippedDirectory).attempt.flatMap(handleResult))
             .map(_ => unzippedDirectory)
         })
 
