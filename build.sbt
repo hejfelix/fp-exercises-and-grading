@@ -28,6 +28,11 @@ lazy val gradingServer = project
       "org.http4s"           %% "http4s-dsl"          % v.http4s,
       "org.typelevel"        %% "cats-effect"         % v.catsEffect,
       "com.github.pathikrit" %% "better-files"        % v.betterfiles,
-      "org.slf4j"            % "slf4j-simple"         % v.slf4j
-    )
+      "org.slf4j"            % "slf4j-simple"         % v.slf4j,
+      "com.spotify"          % "docker-client"        % v.spotifyDocker,
+      "org.log4s"            %% "log4s"               % v.log4s,
+      "io.estatico"          %% "newtype"             % v.newtype
+    ),
+    scalacOptions -= "-Xlint:package-object-classes",
+    addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)
   )
