@@ -14,6 +14,8 @@ case class Matrix3x3(rows: List[List[Double]]) {
 
   def asArrays: Array[Array[Double]] = rows.map(_.toArray).toArray
 
+  override def toString: String = pretty
+
   /**
     * We need this custom implementation since NaN != NaN...
     * */

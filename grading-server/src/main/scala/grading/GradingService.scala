@@ -7,6 +7,7 @@ import com.spotify.docker.client.{DefaultDockerClient, DockerClient}
 import fs2.io.file.writeAll
 import fs2.{Sink, StreamApp, async}
 import grading.docker.{EvaluationResult, Evaluator}
+import grading.email._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.server.blaze.BlazeBuilder
@@ -22,7 +23,12 @@ class GradingService[F[_]](implicit F: Effect[F], ec: ExecutionContext)
 
   private val dockerClient: DockerClient = DefaultDockerClient.fromEnv.build
   private val dockerFileName             = "solution-Dockerfile"
-  private val evaulator                  = new Evaluator[F](dockerClient, dockerFileName)
+  private val reportParser               = new TestReportParser[F]()
+  private val evaulator                  = new Evaluator[F](dockerClient, dockerFileName, reportParser)
+  private val emailConfig: EmailConfig   = ???
+  private val emailNotification          = new EmailNotification[F](emailConfig)
+  private val htmlTemplate               = new HtmlTemplate
+  private val user                       = User("dkfepaha@lego.com", "Felix Bjært Hargreaves")
 
   private def extractFilePartToDisk(filePart: Part[F]): F[File] = {
     val createTmpFile: F[File] = F.delay(File.newTemporaryFile(suffix = ".zip"))
@@ -36,22 +42,23 @@ class GradingService[F[_]](implicit F: Effect[F], ec: ExecutionContext)
     writeZipFile
       .flatMap(file => tmpFolder.map(tmpFolder => (file, tmpFolder)))
       .map {
-        case (file, tmpDir) =>
-          println(tmpDir.get)
-          file.unzipTo(tmpDir.get)
+        case (file, tmpDir) => file.unzipTo(tmpDir.get)
       }
   }
 
   private def handleResult(maybeResult: Either[Throwable, EvaluationResult]): F[Unit] =
-    F.delay(
-      maybeResult.fold(
-        err => logger.error(err)(err.getMessage),
-        res => logger.info(res.toString)
-      )
+    maybeResult.fold(
+      err => F.pure(logger.error(err)(err.getMessage)),
+      res => {
+        logger.info(res.toString)
+        emailNotification
+          .notifyUserHtml(user, "Test results")(htmlTemplate.render(res))
+          .map(_ => ())
+      }
     )
 
   private val helloWorldService = HttpService[F] {
-    case request @ POST -> Root / "hello" =>
+    case request @ POST -> Root / "submit" =>
       val multipart: DecodeResult[F, Multipart[F]] =
         EntityDecoder[F, Multipart[F]].decode(request, strict = true)
 

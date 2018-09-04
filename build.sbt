@@ -8,11 +8,11 @@ lazy val exercises1 = project
     version := "0.1",
     scalaVersion := v.scala,
     libraryDependencies ++= Seq(
-      "org.typelevel"  %% "cats-core"   % v.cats,
-      "org.scalatest"  %% "scalatest"   % v.scalatest % Test,
-      "org.scalacheck" %% "scalacheck"  % v.scalacheck % Test,
       "gov.nist.math"  % "jama"         % v.jama % Test,
-      "org.slf4j"      % "slf4j-simple" % v.slf4j
+      "org.scalacheck" %% "scalacheck"  % v.scalacheck % Test,
+      "org.scalatest"  %% "scalatest"   % v.scalatest % Test,
+      "org.slf4j"      % "slf4j-simple" % v.slf4j,
+      "org.typelevel"  %% "cats-core"   % v.cats,
     ),
     scalacOptions += "-Ypartial-unification"
   )
@@ -24,14 +24,17 @@ lazy val gradingServer = project
     version := "0.1",
     scalaVersion := v.scala,
     libraryDependencies ++= Seq(
+      "ch.qos.logback"       % "logback-classic"      % v.logback,
+      "ch.qos.logback"       % "logback-core"         % v.logback,
+      "com.github.pathikrit" %% "better-files"        % v.betterfiles,
+      "com.icegreen"         % "greenmail"            % v.greenmail,
+      "com.spotify"          % "docker-client"        % v.spotifyDocker,
+      "io.estatico"          %% "newtype"             % v.newtype,
       "org.http4s"           %% "http4s-blaze-server" % v.http4s,
       "org.http4s"           %% "http4s-dsl"          % v.http4s,
-      "org.typelevel"        %% "cats-effect"         % v.catsEffect,
-      "com.github.pathikrit" %% "better-files"        % v.betterfiles,
-      "org.slf4j"            % "slf4j-simple"         % v.slf4j,
-      "com.spotify"          % "docker-client"        % v.spotifyDocker,
       "org.log4s"            %% "log4s"               % v.log4s,
-      "io.estatico"          %% "newtype"             % v.newtype
+      "org.typelevel"        %% "cats-effect"         % v.catsEffect,
+      "org.apache.commons"   % "commons-email"        % v.commonsEmail,
     ),
     scalacOptions -= "-Xlint:package-object-classes",
     addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)

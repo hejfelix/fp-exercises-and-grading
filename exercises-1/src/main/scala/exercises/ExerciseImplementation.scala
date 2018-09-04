@@ -52,6 +52,7 @@ class ExerciseImplementation extends Exercise {
     case xs if xs.forall(_.isEmpty) => Nil
     case rows                       => rows.map(_.head) :: transposeLists(rows.map(_.tail))
   }
+//  def transposeLists(list: List[List[Double]]): List[List[Double]] = list
 
   override def sum(matrices: Matrix3x3*)(implicit m: Monoid[Matrix3x3]): Matrix3x3 =
     matrices.toList.combineAll

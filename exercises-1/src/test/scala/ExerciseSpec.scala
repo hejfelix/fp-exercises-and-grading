@@ -1,8 +1,8 @@
-import exercises.{ExerciseImplementation, Matrix3x3}
-import org.scalatest.{Matchers, WordSpec}
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import Jama.{Matrix => JamaMatrix}
 import exercises.ExerciseImplementation.MonoidInstances.productMonoidFromTranspose
+import exercises.{ExerciseImplementation, Matrix3x3}
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{Matchers, WordSpec}
 
 /**
   * We'll use Jama, an established Java Matrix library, to test our matrix operations
@@ -18,66 +18,66 @@ class ExerciseSpec
 
   val solution = new ExerciseImplementation
 
-  "Exercise" should {
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(1000)
 
-    "A matrix plus zero equals itself" in {
-      forAll { matrix: Matrix3x3 =>
-        import exercises.ExerciseImplementation.MonoidInstances.sumMonoid
-        solution.sum(matrix, sumMonoid.empty) shouldBe matrix
-      }
+  "A matrix plus zero equals itself" in {
+    forAll { matrix: Matrix3x3 =>
+      import exercises.ExerciseImplementation.MonoidInstances.sumMonoid
+      solution.sum(matrix, sumMonoid.empty) shouldBe matrix
     }
+  }
 
-    "Transpose matrices" in {
-      forAll { matrix: Matrix3x3 =>
-        val jamaMatrix = JamaMatrix.constructWithCopy(matrix.asArrays)
-        val expected   = Matrix3x3(jamaMatrix.transpose().getArray)
-        solution.transpose(matrix) shouldBe expected
-      }
+  "Transpose matrices" in {
+    forAll { matrix: Matrix3x3 =>
+      val jamaMatrix = JamaMatrix.constructWithCopy(matrix.asArrays)
+      val expected   = Matrix3x3(jamaMatrix.transpose().getArray)
+      solution.transpose(matrix) shouldBe expected
     }
+  }
 
-    "A matrix multiplied by the identity matrix equals itself" in {
-      forAll { matrix: Matrix3x3 =>
-        implicit val productMonoid = productMonoidFromTranspose(solution.transpose)
-        solution.product(matrix, productMonoid.empty) shouldBe matrix
-      }
+  "A matrix multiplied by the identity matrix equals itself" in {
+    forAll { matrix: Matrix3x3 =>
+      implicit val productMonoid = productMonoidFromTranspose(solution.transpose)
+      solution.product(matrix, productMonoid.empty) shouldBe matrix
     }
+  }
 
-    "Sum matrices" in {
-      forAll { matrices: List[Matrix3x3] =>
-        import exercises.ExerciseImplementation.MonoidInstances.sumMonoid
-        val result: Matrix3x3 = solution.sum(matrices: _*) //spread list out into varargs
+  "Sum matrices" in {
+    forAll { matrices: List[Matrix3x3] =>
+      import exercises.ExerciseImplementation.MonoidInstances.sumMonoid
+      val result: Matrix3x3 = solution.sum(matrices: _*) //spread list out into varargs
 
-        val jamaMatrices: List[JamaMatrix] =
-          matrices
-            .map(m => m.rows.map(_.toArray).toArray)
-            .map(JamaMatrix.constructWithCopy)
+      val jamaMatrices: List[JamaMatrix] =
+        matrices
+          .map(m => m.rows.map(_.toArray).toArray)
+          .map(JamaMatrix.constructWithCopy)
 
-        val jamaZero: JamaMatrix =
-          JamaMatrix.constructWithCopy(sumMonoid.empty.asArrays)
+      val jamaZero: JamaMatrix =
+        JamaMatrix.constructWithCopy(sumMonoid.empty.asArrays)
 
-        val expected: JamaMatrix = jamaMatrices.fold(jamaZero)(_ plus _)
+      val expected: JamaMatrix = jamaMatrices.fold(jamaZero)(_ plus _)
 
-        result.asArrays shouldBe expected.getArray
-      }
+      result.asArrays shouldBe expected.getArray
     }
+  }
 
-    "Multiply matrices" in {
-      forAll { matrices: List[Matrix3x3] =>
-        implicit val productMonoid = productMonoidFromTranspose(solution.transpose)
-        val result: Matrix3x3      = solution.product(matrices: _*) //spread list out into varargs
+  "Multiply matrices" in {
+    forAll { matrices: List[Matrix3x3] =>
+      implicit val productMonoid = productMonoidFromTranspose(solution.transpose)
+      val result: Matrix3x3      = solution.product(matrices: _*) //spread list out into varargs
 
-        val jamaMatrices: List[JamaMatrix] =
-          matrices
-            .map(m => m.rows.map(_.toArray).toArray)
-            .map(JamaMatrix.constructWithCopy)
+      val jamaMatrices: List[JamaMatrix] =
+        matrices
+          .map(m => m.rows.map(_.toArray).toArray)
+          .map(JamaMatrix.constructWithCopy)
 
-        val jamaZero: JamaMatrix =
-          JamaMatrix.constructWithCopy(productMonoid.empty.asArrays)
+      val jamaZero: JamaMatrix =
+        JamaMatrix.constructWithCopy(productMonoid.empty.asArrays)
 
-        val expected: JamaMatrix = jamaMatrices.fold(jamaZero)(_ times _)
+      val expected: JamaMatrix = jamaMatrices.fold(jamaZero)(_ times _)
 
-        result shouldBe Matrix3x3(expected.getArray)
-      }
+      result shouldBe Matrix3x3(expected.getArray)
     }
 
   }

@@ -14,4 +14,7 @@ object Versions {
   val jama          = "1.0.3"
   val slf4j         = "1.7.25"
   val spotifyDocker = "8.13.0"
+  val logback       = "1.3.0-alpha4"
+  val greenmail     = "1.5.8"
+  val commonsEmail  = "1.5"
 }
