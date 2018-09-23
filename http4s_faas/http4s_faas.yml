@@ -1,0 +1,13 @@
+provider:
+  name: faas
+  gateway: http://127.0.0.1:8080
+
+functions:
+  http4s_openfaas:
+    lang: Dockerfile
+    handler: ./openfaas
+    image: http4s-openfaas
+    environment:
+      write_debug: true
+    labels:
+      com.openfaas.scale.min: 1
