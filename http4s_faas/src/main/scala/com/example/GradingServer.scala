@@ -9,6 +9,11 @@ import scala.concurrent.ExecutionContext
 object HelloWorldServer extends StreamApp[IO] {
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  private val logger = org.log4s.getLogger
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    override def run(): Unit = logger.info("<=========== YAAY, WE GOT A SHUTDOWN HOOK!!! SUCK IT AWS LAMBDA :-p =========>")
+  } )
+
   def stream(args: List[String], requestShutdown: IO[Unit]) = ServerStream.stream[IO]
 }
 
