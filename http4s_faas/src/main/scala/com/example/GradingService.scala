@@ -16,10 +16,13 @@ import scala.concurrent.ExecutionContext
 
 class GradingService[F[_]](implicit F: Effect[F], ec: ExecutionContext) extends Http4sDsl[F] {
 
+  private def secret(name:String):String = scala.io.Source.fromFile(s"/var/openfaas/secrets/${name}").mkString
+
   private val logger    = org.log4s.getLogger
   private val evaulator = new Evaluator[F](new TestReportParser[F]())
   private val emailCredentials =
-    EmailCredentials(???, ???)
+    EmailCredentials(secret("EMAIL_USER"), secret("EMAIL_PASSWORD"))
+
   private val emailConfig: EmailConfig = EmailConfig(
     hostname = "smtp.zoho.com",
     port = 465,
@@ -30,7 +33,7 @@ class GradingService[F[_]](implicit F: Effect[F], ec: ExecutionContext) extends 
   )
   private val emailNotification = new EmailNotification[F](emailConfig)
   private val htmlTemplate      = new HtmlTemplate
-  private val user              = User(???, ???)
+  private val user              = User(secret("EMAIL_RECEIVER_ADDRESS"), secret("EMAIL_RECEIVER_NAME"))
 
   private def extractFilePartToDisk(filePart: Part[F]): F[File] = {
     val createTmpFile: F[File] = F.delay(File.newTemporaryFile(suffix = ".zip"))

@@ -6,3 +6,4 @@ target/
 exercise\.zip
 
 http4s_faas/openfaas/app\.jar
+http4s_faas/template

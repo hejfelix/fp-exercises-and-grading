@@ -11,3 +11,8 @@ functions:
       write_debug: true
     labels:
       com.openfaas.scale.min: 1
+    secrets:
+      - EMAIL_USER
+      - EMAIL_PASSWORD
+      - EMAIL_RECEIVER_ADDRESS
+      - EMAIL_RECEIVER_NAME
